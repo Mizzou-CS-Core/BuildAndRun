@@ -22,7 +22,6 @@ def run_executable(path: str, executable_name = "a.out", execution_timeout = 5, 
     if not executable_path.is_file():
         errors['no_exe'] = "There was no executable."
         return errors
-    print(executable_path)
     result = run(["stdbuf", "-oL", executable_path], timeout=execution_timeout,
                 stdout=PIPE, stderr=PIPE, universal_newlines=True,
                 input=input)
