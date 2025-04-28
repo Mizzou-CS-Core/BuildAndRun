@@ -1,5 +1,6 @@
 import os
 import re
+import signal
 from subprocess import DEVNULL, PIPE, run
 from pathlib import Path
 
@@ -43,7 +44,7 @@ def run_executable(path: str, executable_name = "a.out", execution_timeout = 5, 
             errors["valgrind_memory_leak"] = "Valgrind: Memory leak detected!"
         if output_logs:
             with valgrind_log_path.open('w') as vg_log:
-                vg_log.write(result.stderr)
+                vg_log.write(stderr)
     return errors
 
 if __name__ == "__main__":
