@@ -1,5 +1,6 @@
 import os
 import re
+import signal
 from subprocess import DEVNULL, PIPE, run
 from pathlib import Path
 
@@ -13,15 +14,15 @@ def compile(compilable_code_path: str, filename: str, use_makefile = False, outp
     return True if result.returncode != 0 else False
 
 
-def run_executable(executable_path: str, executable_name = "a.out", execution_timeout = 5, input = None, run_valgrind = True, output_logs = False):
+def run_executable(path: str, executable_name = "a.out", execution_timeout = 5, input = None, run_valgrind = True, output_logs = False):
     errors = {}
-    executable_path = Path(executable_path) / executable_name
-    output_log_path = Path(executable_path) / "output.log"
+    executable_path = Path(path) / executable_name
+    output_log_path = Path(path) / "output.log"
 
     if not executable_path.is_file():
+        
         errors['no_exe'] = "There was no executable."
         return errors
-    print(executable_path)
     result = run(["stdbuf", "-oL", executable_path], timeout=execution_timeout,
                 stdout=PIPE, stderr=PIPE, universal_newlines=True,
                 input=input)
@@ -35,7 +36,7 @@ def run_executable(executable_path: str, executable_name = "a.out", execution_ti
         if (signum == signal.SIGSEGV):
             errors["seg_fault"] = "Segmentation fault detected!"
     if run_valgrind:
-        valgrind_log_path = Path(executable_path) / "valgrind.log"
+        valgrind_log_path = Path(path) / "valgrind.log"
         stderr = run(["valgrind", executable_path], stdout=PIPE, stderr=PIPE, universal_newlines=True).stderr
         if re.search(r"[1-9]\d*\s+errors", stderr):
             errors["valgrind_errors"] = "Valgrind: There were errors in your program!"
@@ -43,7 +44,7 @@ def run_executable(executable_path: str, executable_name = "a.out", execution_ti
             errors["valgrind_memory_leak"] = "Valgrind: Memory leak detected!"
         if output_logs:
             with valgrind_log_path.open('w') as vg_log:
-                vg_log.write(result.stderr)
+                vg_log.write(stderr)
     return errors
 
 if __name__ == "__main__":
