@@ -22,9 +22,12 @@ def run_executable(path: str, executable_name = "a.out", execution_timeout = 5, 
     if not executable_path.is_file():
         errors['no_exe'] = "There was no executable."
         return errors
-    result = run(["stdbuf", "-oL", executable_path], timeout=execution_timeout,
+    try:
+        result = run(["stdbuf", "-oL", executable_path], timeout=execution_timeout,
                 stdout=PIPE, stderr=PIPE, universal_newlines=True,
                 input=input)
+    except UnicodeDecodeError as e:
+        errors['unicode_error'] = "A bad character was encountered that blocked further execution."
     if output_logs:
         with output_log_path.open('w') as log:
             log.write(result.stdout)
