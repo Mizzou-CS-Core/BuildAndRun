@@ -11,7 +11,7 @@ def compile(compilable_code_path: str, filename: str, use_makefile = False, outp
     else:
         lab = f"{compilable_code_path}/{filename}" 
         result = run(["gcc", "-Wall", "-Werror", "-o", f"{compilable_code_path}{output}", lab])
-    return True if result.returncode != 0 else False
+    return result
 
 
 def run_executable(path: str, executable_name = "a.out", execution_timeout = 5, input = None, run_valgrind = True, output_logs = False):
